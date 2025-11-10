@@ -5,7 +5,7 @@ import { addBook , getBookById , deleteBook, getAllBooks} from './queries/querie
 import dotenv from 'dotenv';
 import { authenticateJWT , checkAdmin } from './middlewares/middleware.js';
 
-dotenv.config();
+// dotenv.config(); // Comentado - se carga en pool.js
 const app = express();
 const PORT = 3000;
 
@@ -266,4 +266,17 @@ app.delete('/pedidos/:id', authenticateJWT, checkAdmin, async (req, res) => {
   }
 });
 
-export default app;
+// TEST ENDPOINT
+app.get('/test', (req, res) => {
+  res.json({ message: 'Backend funcionando OK', env: { user: process.env.DB_USER, host: process.env.DB_HOST } });
+});
+
+app.post('/test-db', async (req, res) => {
+  const { pool } = await import('./database/pool.js');
+  try {
+    const result = await pool.query('SELECT NOW()');
+    res.json({ success: true, time: result.rows[0].now });
+  } catch (error) {
+    res.status(500).json({ error: error.message, stack: error.stack });
+  }
+});
