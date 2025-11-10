@@ -1,0 +1,33 @@
+{
+  "name": "back_desafio_final",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "module",
+    "url": "git+https://github.com/dm-gallardo/Back_Desafio_Final.git"
+  },
+  "keywords": [],
+  "author": "Grupo 1 G90 - Desafio Final",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dm-gallardo/Back_Desafio_Final/issues"
+  },
+  "homepage": "https://github.com/dm-gallardo/Back_Desafio_Final#readme",
+  "description": "",
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "node": "^22.21.0",
+    "pg": "^8.16.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
