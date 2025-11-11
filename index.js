@@ -7,7 +7,7 @@ import { authenticateJWT , checkAdmin } from './middlewares/middleware.js';
 
 // dotenv.config(); // Comentado - se carga en pool.js
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Configurar CORS y el middleware para parsear JSON no se le agrega ruta a mi cors ya que tengo varios dominios locales y me da error si le agrego una ruta
 

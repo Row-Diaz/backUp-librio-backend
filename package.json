@@ -1,13 +1,15 @@
 {
   "name": "back_desafio_final",
   "version": "1.0.0",
+  "type": "module",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
     "dev": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
-    "type": "module",
+    "type": "git",
     "url": "git+https://github.com/dm-gallardo/Back_Desafio_Final.git"
   },
   "keywords": [],
