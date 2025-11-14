@@ -3,6 +3,7 @@ import cors from 'cors';
 import { addUser , loginUser , getUserById , deleteUser} from './queries/queriesUsuarios.js';
 import { addBook , getBookById , deleteBook, getAllBooks} from './queries/queriesLibros.js';
 import dotenv from 'dotenv';
+import { crearPedido, obtenerPedidosUsuario, obtenerDetallePedido } from './queries/queriesPedidos.js';
 import { authenticateJWT , checkAdmin } from './middlewares/middleware.js';
 
 // dotenv.config(); // Comentado - se carga en pool.js
@@ -278,5 +279,44 @@ app.post('/test-db', async (req, res) => {
     res.json({ success: true, time: result.rows[0].now });
   } catch (error) {
     res.status(500).json({ error: error.message, stack: error.stack });
+  }
+});
+
+
+// Crear nuevo pedido
+app.post('/pedidos', authenticateJWT, async (req, res) => {
+  const { carrito } = req.body;
+  const usuario_id = req.user.id_usuarios;
+  
+  try {
+    const pedido = await crearPedido(usuario_id, carrito);
+    res.status(201).json({ message: 'Pedido creado exitosamente', pedido });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Obtener pedidos del usuario autenticado
+app.get('/pedidos/usuario', authenticateJWT, async (req, res) => {
+  const usuario_id = req.user.id_usuarios;
+  
+  try {
+    const pedidos = await obtenerPedidosUsuario(usuario_id);
+    res.json({ pedidos });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Obtener detalle de un pedido específico
+app.get('/pedidos/:id', authenticateJWT, async (req, res) => {
+  const pedido_id = req.params.id;
+  const usuario_id = req.user.id_usuarios;
+  
+  try {
+    const detalle = await obtenerDetallePedido(pedido_id, usuario_id);
+    res.json(detalle);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
 });
