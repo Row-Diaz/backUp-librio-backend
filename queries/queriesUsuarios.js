@@ -92,5 +92,4 @@ const deleteUser = async (id_usuarios) => {
 };
 
 
-export { addUser, loginUser, getUserById, deleteUser, actualizarFotoPerfil };
 export { addUser, loginUser, getUserById, deleteUser };
