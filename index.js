@@ -10,14 +10,14 @@ import { authenticateJWT , checkAdmin } from './middlewares/middleware.js';
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Configurar CORS y el middleware para parsear JSON no se le agrega ruta a mi cors ya que tengo varios dominios locales y me da error si le agrego una ruta
-// Configurar CORS - Permitir todos los orígenes
+// Configurar CORS
 app.use(cors({
   origin: '*',
   credentials: false,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
 app.use(express.json({ limit: '10mb' }));
 
 app.listen(PORT, async () => {
