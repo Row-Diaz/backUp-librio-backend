@@ -184,7 +184,7 @@ app.delete('/libros/:id', authenticateJWT, checkAdmin, async (req, res) => {
 
 // ---------------------------------------------------------------------------------------------------------------
 
-});
+
 
 // TEST ENDPOINT
 app.get('/test', (req, res) => {
