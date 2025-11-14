@@ -91,7 +91,6 @@ const deleteUser = async (id_usuarios) => {
     }
 };
 
-export { addUser, loginUser, getUserById, deleteUser };
 
 /**
  * Actualizar foto de perfil del usuario
