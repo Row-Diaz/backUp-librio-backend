@@ -11,21 +11,14 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Configurar CORS y el middleware para parsear JSON no se le agrega ruta a mi cors ya que tengo varios dominios locales y me da error si le agrego una ruta
-// Configurar CORS
-const corsOptions = {
-  origin: [
-    'http://localhost:5173',
-    'http://localhost:3000', 
-    'https://librio-frontend.vercel.app'
-  ],
-  credentials: true,
-  optionsSuccessStatus: 200,
+// Configurar CORS - Permitir todos los orígenes
+app.use(cors({
+  origin: '*',
+  credentials: false,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
-};
-
-app.use(cors(corsOptions));
-app.use(express.json({ limit: '10mb' })); // Aumentar límite para imágenes base64
+}));
+app.use(express.json({ limit: '10mb' }));
 
 app.listen(PORT, async () => {
   console.log(`Server is running on http://localhost:${PORT}`);
