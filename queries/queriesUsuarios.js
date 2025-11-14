@@ -92,18 +92,3 @@ const deleteUser = async (id_usuarios) => {
 };
 
 export { addUser, loginUser, getUserById, deleteUser };
-
-/**
- * Actualizar foto de perfil del usuario
- */
-const actualizarFotoPerfil = async (usuario_id, foto_perfil) => {
-    try {
-        const query = 'UPDATE usuarios SET foto_perfil = $1 WHERE id_usuarios = $2 RETURNING id_usuarios, nombre, email, foto_perfil';
-        const result = await pool.query(query, [foto_perfil, usuario_id]);
-        return result.rows[0];
-    } catch (error) {
-        throw new Error('Error al actualizar foto de perfil: ' + error.message);
-    }
-};
-
-export { addUser, loginUser, getUserById, deleteUser, actualizarFotoPerfil };
