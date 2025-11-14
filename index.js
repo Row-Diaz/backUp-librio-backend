@@ -20,8 +20,6 @@ app.use(cors({
 
 app.use(express.json({ limit: '10mb' }));
 
-// Manejar preflight requests
-app.options('/*', cors());
 
 app.listen(PORT, async () => {
   console.log(`✅ Server is running on http://localhost:${PORT}`);
