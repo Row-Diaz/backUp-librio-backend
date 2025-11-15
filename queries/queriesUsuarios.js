@@ -54,12 +54,12 @@ const loginUser = async (email, password) => {
                 id_usuarios: user.id_usuarios,
                 email: user.email,
                 nombre: user.nombre,
-                admin: user.admin
+                admin: user.admin,
+                foto_perfil: user.foto_perfil
             },
             process.env.JWT_SECRET,
             { expiresIn: '2h' }
         );
-
         return token;
 
     } catch (error) {
