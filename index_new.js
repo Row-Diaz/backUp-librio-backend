@@ -220,8 +220,7 @@ app.post('/test-db', async (req, res) => {
 
 
 // Crear nuevo pedido
-  }
-});
+
 
 // Obtener pedidos del usuario autenticado
 app.get('/pedidos/usuario', authenticateJWT, async (req, res) => {
