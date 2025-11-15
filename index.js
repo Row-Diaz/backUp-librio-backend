@@ -225,6 +225,12 @@ app.post('/test-db', async (req, res) => {
 
 
 // Crear nuevo pedido
+// Endpoint de prueba SIN base de datos
+app.post("/pedidos/test", authenticateJWT, (req, res) => {
+  console.log("Test endpoint llamado");
+  res.status(200).json({ message: "Test OK", usuario: req.user.id_usuarios });
+});
+
 // Crear nuevo pedido
 app.post('/pedidos', authenticateJWT, async (req, res) => {
   const { carrito } = req.body;
