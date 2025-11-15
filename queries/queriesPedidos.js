@@ -1,77 +1,71 @@
 import { pool } from '../database/pool.js';
 
 /**
- * Crear un nuevo pedido con sus libros (versión optimizada)
+ * Crear un nuevo pedido SIN transacciones (para debugging)
  */
 const crearPedido = async (usuario_id, carrito) => {
-    const client = await pool.connect();
-
     try {
-        await client.query('BEGIN');
-
+        console.log('1. Iniciando crearPedido');
+        
         // Validar que el carrito no esté vacío
         if (!carrito || carrito.length === 0) {
             throw new Error('El carrito está vacío');
         }
 
-        // Validar que todos los items tengan los datos necesarios
+        console.log('2. Carrito validado, items:', carrito.length);
+
+        // Validar datos
         for (const item of carrito) {
-            if (!item.id) {
-                throw new Error(`Item sin ID: ${JSON.stringify(item)}`);
-            }
-            if (!item.precio || isNaN(parseFloat(item.precio))) {
-                throw new Error(`Item ${item.id} sin precio válido: ${item.precio}`);
-            }
-            if (!item.count || item.count <= 0) {
-                throw new Error(`Item ${item.id} sin cantidad válida: ${item.count}`);
+            if (!item.id || !item.precio || !item.count) {
+                throw new Error(`Item inválido: ${JSON.stringify(item)}`);
             }
         }
 
-        // Calcular el monto total
+        console.log('3. Items validados');
+
+        // Calcular monto total
         const monto_total = carrito.reduce((total, item) => {
             return total + (parseFloat(item.precio) * parseInt(item.count));
         }, 0);
 
-        console.log('Creando pedido:', { usuario_id, monto_total, items: carrito.length });
-        
-        // Insertar el pedido
+        console.log('4. Monto total calculado:', monto_total);
+
+        // Insertar pedido
         const pedidoQuery = `
             INSERT INTO pedido (fecha_pedido, estado, monto_total, usuario_id)
             VALUES (CURRENT_DATE, true, $1, $2)
             RETURNING id_pedido
         `;
-        const pedidoResult = await client.query(pedidoQuery, [monto_total, usuario_id]);
+        
+        console.log('5. Ejecutando INSERT pedido...');
+        const pedidoResult = await pool.query(pedidoQuery, [monto_total, usuario_id]);
         const pedido_id = pedidoResult.rows[0].id_pedido;
+        
+        console.log('6. Pedido insertado, ID:', pedido_id);
 
-        console.log('Pedido creado con ID:', pedido_id);
-
-        // Insertar todos los libros del pedido en una sola query
-        if (carrito.length > 0) {
-            const values = [];
-            const placeholders = [];
-            
-            carrito.forEach((item, index) => {
-                const offset = index * 4;
-                placeholders.push(`($${offset + 1}, $${offset + 2}, $${offset + 3}, $${offset + 4})`);
-                values.push(
+        // Insertar libros uno por uno con manejo de errores individual
+        console.log('7. Insertando libros...');
+        for (let i = 0; i < carrito.length; i++) {
+            const item = carrito[i];
+            try {
+                const libroQuery = `
+                    INSERT INTO pedido_libros (pedido_id, libro_id, cantidad, precio_unitario)
+                    VALUES ($1, $2, $3, $4)
+                `;
+                await pool.query(libroQuery, [
                     pedido_id,
                     item.id,
                     parseInt(item.count),
                     parseFloat(item.precio)
-                );
-            });
-
-            const libroQuery = `
-                INSERT INTO pedido_libros (pedido_id, libro_id, cantidad, precio_unitario)
-                VALUES ${placeholders.join(', ')}
-            `;
-            
-            await client.query(libroQuery, values);
+                ]);
+                console.log(`8.${i}. Libro ${item.id} insertado`);
+            } catch (libroError) {
+                console.error(`Error insertando libro ${item.id}:`, libroError.message);
+                // Continuar con los demás libros
+            }
         }
 
-        await client.query('COMMIT');
-
-        console.log('Pedido completado exitosamente');
+        console.log('9. Pedido completado');
 
         return {
             id_pedido: pedido_id,
@@ -80,11 +74,9 @@ const crearPedido = async (usuario_id, carrito) => {
         };
 
     } catch (error) {
-        await client.query('ROLLBACK');
-        console.error('Error al crear pedido:', error.message);
+        console.error('ERROR en crearPedido:', error.message);
+        console.error('ERROR stack:', error.stack);
         throw new Error('Error al crear el pedido: ' + error.message);
-    } finally {
-        client.release();
     }
 };
 
@@ -120,7 +112,6 @@ const obtenerPedidosUsuario = async (usuario_id) => {
  */
 const obtenerDetallePedido = async (pedido_id, usuario_id) => {
     try {
-        // Obtener información del pedido
         const pedidoQuery = `
             SELECT * FROM pedido 
             WHERE id_pedido = $1 AND usuario_id = $2
@@ -131,7 +122,6 @@ const obtenerDetallePedido = async (pedido_id, usuario_id) => {
             throw new Error('Pedido no encontrado');
         }
 
-        // Obtener libros del pedido
         const librosQuery = `
             SELECT 
                 pl.*,
