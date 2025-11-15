@@ -4,31 +4,32 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-// Usar siempre variables individuales para evitar problemas con .internal
 const poolConfig = {
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  port: process.env.DB_PORT,
+  port: process.env.DB_PORT || 5432,
   max: 5,
   min: 1,
   idleTimeoutMillis: 10000,
   connectionTimeoutMillis: 30000,
-  statement_timeout: 15000,
-  ssl: false
+  statement_timeout: 30000,
+  ssl: {
+    rejectUnauthorized: false
+  }
 };
 
-console.log('��� Conectando a:', process.env.DB_HOST);
+console.log('✅ Conectando a BD:', process.env.DB_HOST);
 
 const pool = new Pool(poolConfig);
 
 pool.on('error', (err) => {
-  console.error('❌ Error inesperado en el pool:', err);
+  console.error('❌ Error en pool:', err);
 });
 
 pool.on('connect', () => {
-  console.log('✅ Conexión al pool establecida');
+  console.log('✅ Conexión establecida');
 });
 
 export { pool };
