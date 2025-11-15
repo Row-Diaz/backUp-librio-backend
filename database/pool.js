@@ -20,7 +20,16 @@ const poolConfig = {
   }
 };
 
+// En Vercel, agregar parámetros de SSL en la conexión
+if (process.env.VERCEL) {
+  poolConfig.ssl = {
+    rejectUnauthorized: false,
+    sslmode: 'require'
+  };
+}
+
 console.log('✅ Conectando a BD:', process.env.DB_HOST);
+console.log('✅ SSL habilitado:', poolConfig.ssl ? 'Sí' : 'No');
 
 const pool = new Pool(poolConfig);
 
@@ -29,7 +38,7 @@ pool.on('error', (err) => {
 });
 
 pool.on('connect', () => {
-  console.log('✅ Conexión establecida');
+  console.log('✅ Conexión establecida con la base de datos');
 });
 
 export { pool };
