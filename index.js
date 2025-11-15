@@ -139,6 +139,11 @@ app.post('/libros', authenticateJWT, checkAdmin, async (req, res) => {
     }
 });
 
+
+/**
+ * GET /libros - Obtener todos los libros
+ * PÚBLICO: No requiere autenticación (removido authenticateJWT el 15/11/2025)
+ */
 app.get('/libros', async (req, res) => {
     try {
         const books = await getAllBooks();
@@ -149,6 +154,11 @@ app.get('/libros', async (req, res) => {
 });
 
 
+
+/**
+ * GET /libros/:id - Obtener libro por ID
+ * PÚBLICO: No requiere autenticación (removido authenticateJWT el 15/11/2025)
+ */
 app.get('/libros/:id', async (req, res) => {
     const { id } = req.params;
     if (isNaN(id)) {
