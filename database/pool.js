@@ -13,7 +13,8 @@ const pool = new Pool({
   port: process.env.DB_PORT,
   max: 20,
   idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 10000,
+  connectionTimeoutMillis: 20000,
+  statement_timeout: 20000,
   ssl: {
     rejectUnauthorized: false
   }

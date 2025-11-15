@@ -223,16 +223,22 @@ app.post('/test-db', async (req, res) => {
 app.post('/pedidos', authenticateJWT, async (req, res) => {
   const { carrito } = req.body;
   const usuario_id = req.user.id_usuarios;
-    console.log('Creando pedido para usuario:', usuario_id, 'Items:', carrito?.length);
+  
+  console.log('=== POST /pedidos ===');
+  console.log('Usuario:', usuario_id);
+  console.log('Items:', carrito?.length);
+  console.log('Carrito:', JSON.stringify(carrito));
   
   try {
     const pedido = await crearPedido(usuario_id, carrito);
-    console.error('Error en POST /pedidos:', error);
+    console.log('Pedido creado exitosamente');
     res.status(201).json({ message: 'Pedido creado exitosamente', pedido });
   } catch (error) {
+    console.error('Error en POST /pedidos:', error.message);
     res.status(400).json({ error: error.message });
   }
 });
+
 
 // Obtener pedidos del usuario autenticado
 app.get('/pedidos/usuario', authenticateJWT, async (req, res) => {
