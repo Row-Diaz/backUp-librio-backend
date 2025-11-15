@@ -223,9 +223,11 @@ app.post('/test-db', async (req, res) => {
 app.post('/pedidos', authenticateJWT, async (req, res) => {
   const { carrito } = req.body;
   const usuario_id = req.user.id_usuarios;
+    console.log('Creando pedido para usuario:', usuario_id, 'Items:', carrito?.length);
   
   try {
     const pedido = await crearPedido(usuario_id, carrito);
+    console.error('Error en POST /pedidos:', error);
     res.status(201).json({ message: 'Pedido creado exitosamente', pedido });
   } catch (error) {
     res.status(400).json({ error: error.message });
