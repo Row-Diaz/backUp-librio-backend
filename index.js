@@ -25,6 +25,11 @@ app.listen(PORT, async () => {
   console.log(`✅ Server is running on http://localhost:${PORT}`);
   console.log('✅ CORS configurado para permitir todos los orígenes');
 });
+// Health check
+app.get("/health", (req, res) => {
+  res.json({ status: "ok", timestamp: new Date().toISOString() });
+});
+
 
 
 // RUTA POST
@@ -220,25 +225,39 @@ app.post('/test-db', async (req, res) => {
 
 
 // Crear nuevo pedido
+// Crear nuevo pedido
 app.post('/pedidos', authenticateJWT, async (req, res) => {
   const { carrito } = req.body;
   const usuario_id = req.user.id_usuarios;
-  
+
   console.log('=== POST /pedidos ===');
   console.log('Usuario:', usuario_id);
   console.log('Items:', carrito?.length);
   console.log('Carrito:', JSON.stringify(carrito));
-  
+
+  // Configurar timeout de 15 segundos
+  req.setTimeout(15000);
+  res.setTimeout(15000);
+
   try {
-    const pedido = await crearPedido(usuario_id, carrito);
+    const pedido = await Promise.race([
+      crearPedido(usuario_id, carrito),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Timeout al crear pedido')), 14000)
+      )
+    ]);
+    
     console.log('Pedido creado exitosamente');
     res.status(201).json({ message: 'Pedido creado exitosamente', pedido });
   } catch (error) {
     console.error('Error en POST /pedidos:', error.message);
-    res.status(400).json({ error: error.message });
+    console.error('Stack:', error.stack);
+    
+    if (!res.headersSent) {
+      res.status(400).json({ error: error.message });
+    }
   }
 });
-
 
 // Obtener pedidos del usuario autenticado
 app.get('/pedidos/usuario', authenticateJWT, async (req, res) => {
@@ -283,4 +302,19 @@ app.put('/usuarios/foto-perfil', authenticateJWT, async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+});
+
+// Error handler global para errores no capturados
+app.use((err, req, res, next) => {
+  console.error('Error no capturado:', err);
+  res.status(500).json({ error: 'Error interno del servidor' });
+});
+
+// Manejar errores de proceso
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception:', error);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });
