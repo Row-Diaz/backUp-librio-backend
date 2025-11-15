@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { addUser , loginUser , getUserById , deleteUser } from './queries/queriesUsuarios.js';
+import { addUser , loginUser , getUserById , deleteUser, actualizarFotoPerfil } from './queries/queriesUsuarios.js';
 import { addBook , getBookById , deleteBook, getAllBooks} from './queries/queriesLibros.js';
 import dotenv from 'dotenv';
 import { crearPedido, obtenerPedidosUsuario, obtenerDetallePedido } from './queries/queriesPedidos.js';
@@ -244,5 +244,25 @@ app.get('/pedidos/:id', authenticateJWT, async (req, res) => {
     res.json(detalle);
   } catch (error) {
     res.status(400).json({ error: error.message });
+  }
+});
+
+/**
+ * PUT /usuarios/foto-perfil
+ * Actualizar foto de perfil del usuario autenticado
+ */
+app.put('/usuarios/foto-perfil', authenticateJWT, async (req, res) => {
+  try {
+    const { foto_perfil } = req.body;
+    const usuario_id = req.user.id_usuarios;
+
+    if (!foto_perfil) {
+      return res.status(400).json({ error: 'La foto de perfil es requerida' });
+    }
+
+    const usuarioActualizado = await actualizarFotoPerfil(usuario_id, foto_perfil);
+    res.json(usuarioActualizado);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
