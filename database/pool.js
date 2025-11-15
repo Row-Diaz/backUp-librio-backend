@@ -4,63 +4,22 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const DATABASE_URL = process.env.DATABASE_URL;
+// Usar siempre variables individuales para evitar problemas con .internal
+const poolConfig = {
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  port: process.env.DB_PORT,
+  max: 5,
+  min: 1,
+  idleTimeoutMillis: 10000,
+  connectionTimeoutMillis: 30000,
+  statement_timeout: 15000,
+  ssl: false
+};
 
-let poolConfig;
-
-if (DATABASE_URL) {
-  // Railway genera DATABASE_URL con postgres.railway.internal
-  // Necesitamos usar la URL p√∫blica para conexiones externas
-  let connectionString = DATABASE_URL;
-  
-  // Si estamos en Railway, usar la URL tal cual (internal)
-  // Si no, intentar conectar con credenciales separadas
-  if (process.env.RAILWAY_ENVIRONMENT) {
-    console.log('Ì∫Ç Entorno Railway detectado, usando DATABASE_URL interna');
-    poolConfig = {
-      connectionString: DATABASE_URL,
-      max: 5,
-      min: 1,
-      idleTimeoutMillis: 10000,
-      connectionTimeoutMillis: 30000,
-      statement_timeout: 15000
-    };
-  } else {
-    // Fuera de Railway, usar credenciales manuales
-    console.log('Ì¥ß Fuera de Railway, usando credenciales manuales');
-    poolConfig = {
-      host: process.env.DB_HOST || 'hopper.proxy.rlwy.net',
-      user: process.env.DB_USER || 'postgres',
-      password: process.env.DB_PASSWORD || 'MidfbyGGjyZltIntpnnhCjYYVErTRnro',
-      database: process.env.DB_NAME || 'railway',
-      port: process.env.DB_PORT || 44238,
-      max: 5,
-      min: 1,
-      idleTimeoutMillis: 10000,
-      connectionTimeoutMillis: 30000,
-      statement_timeout: 15000,
-      ssl: false
-    };
-  }
-} else {
-  // Configuraci√≥n manual completa
-  poolConfig = {
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    port: process.env.DB_PORT,
-    max: 5,
-    min: 1,
-    idleTimeoutMillis: 10000,
-    connectionTimeoutMillis: 30000,
-    statement_timeout: 15000,
-    ssl: {
-      rejectUnauthorized: false
-    }
-  };
-  console.log('Ì≥ù Usando configuraci√≥n manual de variables individuales');
-}
+console.log('Ì¥ß Conectando a:', process.env.DB_HOST);
 
 const pool = new Pool(poolConfig);
 
