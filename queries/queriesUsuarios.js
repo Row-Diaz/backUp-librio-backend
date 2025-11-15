@@ -93,6 +93,7 @@ const deleteUser = async (id_usuarios) => {
 
 
 
+
 const actualizarFotoPerfil = async (usuario_id, foto_perfil) => {
     try {
         const query = 'UPDATE usuarios SET foto_perfil = $1 WHERE id_usuarios = $2 RETURNING id_usuarios, nombre, email, foto_perfil';
@@ -102,5 +103,5 @@ const actualizarFotoPerfil = async (usuario_id, foto_perfil) => {
         throw new Error('Error al actualizar foto de perfil: ' + error.message);
     }
 };
-export { addUser, loginUser, getUserById, deleteUser, actualizarFotoPerfil };
 
+export { addUser, loginUser, getUserById, deleteUser, actualizarFotoPerfil };
