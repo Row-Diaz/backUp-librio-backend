@@ -1,7 +1,7 @@
 import { pool } from '../database/pool.js';
 
 /**
- * Crear un nuevo pedido con sus libros
+ * Crear un nuevo pedido con sus libros (versión optimizada)
  */
 const crearPedido = async (usuario_id, carrito) => {
     const client = await pool.connect();
@@ -33,7 +33,7 @@ const crearPedido = async (usuario_id, carrito) => {
         }, 0);
 
         console.log('Creando pedido:', { usuario_id, monto_total, items: carrito.length });
-
+        
         // Insertar el pedido
         const pedidoQuery = `
             INSERT INTO pedido (fecha_pedido, estado, monto_total, usuario_id)
@@ -45,18 +45,28 @@ const crearPedido = async (usuario_id, carrito) => {
 
         console.log('Pedido creado con ID:', pedido_id);
 
-        // Insertar los libros del pedido
-        for (const item of carrito) {
+        // Insertar todos los libros del pedido en una sola query
+        if (carrito.length > 0) {
+            const values = [];
+            const placeholders = [];
+            
+            carrito.forEach((item, index) => {
+                const offset = index * 4;
+                placeholders.push(`($${offset + 1}, $${offset + 2}, $${offset + 3}, $${offset + 4})`);
+                values.push(
+                    pedido_id,
+                    item.id,
+                    parseInt(item.count),
+                    parseFloat(item.precio)
+                );
+            });
+
             const libroQuery = `
                 INSERT INTO pedido_libros (pedido_id, libro_id, cantidad, precio_unitario)
-                VALUES ($1, $2, $3, $4)
+                VALUES ${placeholders.join(', ')}
             `;
-            await client.query(libroQuery, [
-                pedido_id,
-                item.id,
-                parseInt(item.count),
-                parseFloat(item.precio)
-            ]);
+            
+            await client.query(libroQuery, values);
         }
 
         await client.query('COMMIT');
@@ -84,19 +94,19 @@ const crearPedido = async (usuario_id, carrito) => {
 const obtenerPedidosUsuario = async (usuario_id) => {
     try {
         const query = `
-            SELECT
+            SELECT 
                 p.id_pedido,
                 p.fecha_pedido,
                 p.estado,
                 p.monto_total,
-                COUNT(pl.id_pedido_libro) as cantidad_libros
+                COUNT(pl.libro_id) as cantidad_libros
             FROM pedido p
             LEFT JOIN pedido_libros pl ON p.id_pedido = pl.pedido_id
             WHERE p.usuario_id = $1
             GROUP BY p.id_pedido
             ORDER BY p.fecha_pedido DESC
         `;
-
+        
         const result = await pool.query(query, [usuario_id]);
         return result.rows;
     } catch (error) {
@@ -106,26 +116,25 @@ const obtenerPedidosUsuario = async (usuario_id) => {
 };
 
 /**
- * Obtener detalles de un pedido específico
+ * Obtener detalle de un pedido específico
  */
 const obtenerDetallePedido = async (pedido_id, usuario_id) => {
     try {
-        // Verificar que el pedido pertenece al usuario
+        // Obtener información del pedido
         const pedidoQuery = `
-            SELECT * FROM pedido
+            SELECT * FROM pedido 
             WHERE id_pedido = $1 AND usuario_id = $2
         `;
         const pedidoResult = await pool.query(pedidoQuery, [pedido_id, usuario_id]);
-
+        
         if (pedidoResult.rows.length === 0) {
             throw new Error('Pedido no encontrado');
         }
 
-        // Obtener los libros del pedido
+        // Obtener libros del pedido
         const librosQuery = `
-            SELECT
-                pl.cantidad,
-                pl.precio_unitario,
+            SELECT 
+                pl.*,
                 l.titulo,
                 l.autor,
                 l.url_img
