@@ -139,7 +139,7 @@ app.post('/libros', authenticateJWT, checkAdmin, async (req, res) => {
     }
 });
 
-app.get('/libros', authenticateJWT, async (req, res) => {
+app.get('/libros', async (req, res) => {
     try {
         const books = await getAllBooks();
         res.status(200).json(books);
@@ -149,7 +149,7 @@ app.get('/libros', authenticateJWT, async (req, res) => {
 });
 
 
-app.get('/libros/:id', authenticateJWT, async (req, res) => {
+app.get('/libros/:id', async (req, res) => {
     const { id } = req.params;
     if (isNaN(id)) {
       return res.status(400).json({ message: 'ID inválido' });
