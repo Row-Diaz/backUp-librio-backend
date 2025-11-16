@@ -251,16 +251,13 @@ app.post("/pedidos/test", authenticateJWT, (req, res) => {
 
 // Crear nuevo pedido
 app.post('/pedidos', authenticateJWT, async (req, res) => {
-  console.log('POST /pedidos - Usuario:', req.user.id_usuarios);
-  console.log('POST /pedidos - Carrito items:', req.body.carrito?.length || 0);
   try {
     const pedido = await crearPedido(req.user.id_usuarios, req.body.carrito);
-    console.log('✅ Pedido creado exitosamente');
     res.status(201).json({ message: 'Pedido creado exitosamente', pedido });
   } catch (error) {
-    console.error('❌ Error en POST /pedidos:', error.message);
     res.status(500).json({ error: error.message });
   }
+});
 });
 // Obtener pedidos del usuario autenticado
 app.get('/pedidos/usuario', authenticateJWT, async (req, res) => {
