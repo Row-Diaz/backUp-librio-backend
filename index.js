@@ -258,8 +258,7 @@ app.post('/pedidos', authenticateJWT, async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-});
-// Obtener pedidos del usuario autenticado
+
 app.get('/pedidos/usuario', authenticateJWT, async (req, res) => {
   const usuario_id = req.user.id_usuarios;
   
