@@ -40,8 +40,7 @@ app.use(express.json({ limit: '10mb' }));
 
 
 app.listen(PORT, async () => {
-  console.log(`✅ Server is running on http://localhost:${PORT}`);
-  console.log('✅ CORS configurado para permitir todos los orígenes');
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
 // Health check
 app.get("/health", (req, res) => {
@@ -245,7 +244,6 @@ app.post('/test-db', async (req, res) => {
 // Crear nuevo pedido
 // Endpoint de prueba SIN base de datos
 app.post("/pedidos/test", authenticateJWT, (req, res) => {
-  console.log("Test endpoint llamado");
   res.status(200).json({ message: "Test OK", usuario: req.user.id_usuarios });
 });
 

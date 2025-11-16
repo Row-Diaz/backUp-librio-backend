@@ -20,12 +20,7 @@ const poolConfig = {
 // SSL solo si es necesario (Render.com lo necesita, Railway NO)
 if (process.env.DB_HOST && process.env.DB_HOST.includes('render.com')) {
   poolConfig.ssl = { rejectUnauthorized: false };
-  console.log('✅ SSL habilitado para Render');
-} else {
-  console.log('✅ SSL deshabilitado (Railway)');
 }
-
-console.log('✅ Conectando a BD:', process.env.DB_HOST);
 
 const pool = new Pool(poolConfig);
 
@@ -34,7 +29,7 @@ pool.on('error', (err) => {
 });
 
 pool.on('connect', () => {
-  console.log('✅ Conexión establecida con la base de datos');
+  // Conexión establecida
 });
 
 export { pool };
