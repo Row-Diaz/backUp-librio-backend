@@ -233,8 +233,6 @@ app.post("/pedidos/test", authenticateJWT, (req, res) => {
 
 // Crear nuevo pedido
 app.post('/pedidos', authenticateJWT, async (req, res) => {
-  try {
-    const pedido = await crearPedido(req.user.id_usuarios, req.body.carrito);
   console.log('POST /pedidos - Usuario:', req.user.id_usuarios);
   console.log('POST /pedidos - Carrito items:', req.body.carrito?.length || 0);
   try {
